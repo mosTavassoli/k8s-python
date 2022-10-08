@@ -1,0 +1,21 @@
+from kubernetes import client, config
+
+# Configs can be set in Configuration class directly or using helper utility
+config.load_kube_config()
+
+v1 = client.CoreV1Api()
+print("Listing pods with their IPs:")
+ret = v1.list_pod_for_all_namespaces(watch=False)
+for i in ret.items:
+    print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+
+
+ret = v1.list_namespaced_pod(namespace="default")
+for i in ret.items:
+    print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace,
+          i.metadata.name, i.spec.node_name))
+    worker_node = i.spec.node_name
+    if (worker_node == "worker-1"):
+        worker_node = "worker-2"
+    else:
+        worker_node = "worker-2"
